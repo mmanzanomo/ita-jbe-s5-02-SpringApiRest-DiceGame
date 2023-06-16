@@ -1,5 +1,6 @@
-package cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain;
+package cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.game;
 
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.game.Dice;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

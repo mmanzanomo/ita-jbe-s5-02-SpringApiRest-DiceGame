@@ -1,5 +1,6 @@
-package cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain;
+package cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.game;
 
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.game.Game;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

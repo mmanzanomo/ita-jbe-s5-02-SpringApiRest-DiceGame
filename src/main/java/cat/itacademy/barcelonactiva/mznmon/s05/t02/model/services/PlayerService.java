@@ -2,8 +2,8 @@ package cat.itacademy.barcelonactiva.mznmon.s05.t02.model.services;
 
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.exceptions.EmailIsAlreadyExistsException;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.exceptions.NameIsAlreadyExistsException;
-import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.Game;
-import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.Player;
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.game.Game;
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.game.Player;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.dtos.*;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.repositories.mongo.IGameMongoDbRepository;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.repositories.mongo.IPlayerMongoDbRepository;
