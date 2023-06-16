@@ -9,6 +9,7 @@ import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.repositories.mongo.IGam
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.repositories.mongo.IPlayerMongoDbRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,14 +38,14 @@ public class PlayerService implements IPlayerService {
 
         // Else create a new player
         try {
-            Player player = convertRegisterPlayerDtoToPlayer(registerPlayerDTO);
-            player.setUserId(id);
+            Player player = new Player();
+            BeanUtils.copyProperties(registerPlayerDTO, player);
 
             if (player.getName().equals("")) {
                 player.setName("Anonymous");
             } else {
                 // Check if username already exists
-                boolean nameExists = playerMongoDbRepository.existsByName(registerPlayerDTO.getName());
+                boolean nameExists = playerMongoDbRepository.existsByName(registerPlayerDTO.name());
                 if (nameExists) throw new NameIsAlreadyExistsException("The username is already exists.");
             }
 
@@ -62,7 +63,7 @@ public class PlayerService implements IPlayerService {
         Optional<Player> playerMongo = playerMongoDbRepository.findByUserId(userId);
 
         if (playerMongo.isPresent()) {
-            playerMongo.get().setName(playerNameDTO.getName());
+            playerMongo.get().setName(playerNameDTO.name());
             playerMongoDbRepository.save(playerMongo.get());
         }
         return convertPlayerToPlayerNameDTO(playerMongo.get());
@@ -79,7 +80,7 @@ public class PlayerService implements IPlayerService {
     @Override
     @Transactional
     public GameDTO saveGame(PlayerDTO playerDTO) {
-        Optional<Player> playerMongo = playerMongoDbRepository.findById(playerDTO.getId());
+        Optional<Player> playerMongo = playerMongoDbRepository.findById(playerDTO.id());
 
         if (playerMongo.isPresent()) {
             Game game = new Game();
@@ -166,59 +167,41 @@ public class PlayerService implements IPlayerService {
     /*
         UTILS TO COMVERT TO DTO
      */
-    private Player convertRegisterPlayerDtoToPlayer(RegisterPlayerDTO registerPlayerDTO) {
-        Player player = new Player();
-        player.setName(registerPlayerDTO.getName());
-        return player;
-    }
-
     private PlayerDTO convertPlayerToPlayerDTO(Player player) {
-        PlayerDTO playerDTO = new PlayerDTO();
-        playerDTO.setId(player.getId());
-        playerDTO.setName(player.getName());
-        playerDTO.setGamesWon(player.getGamesWon());
-        playerDTO.setTotalGames(player.getTotalGames());
-        playerDTO.setSuccessRate(player.getSuccessRate());
-        playerDTO.setGames(player.getGames().stream().map(this::convertGameToGameDTO).toList());
+        PlayerDTO playerDTO = new PlayerDTO(player.getId(), null, player.getName(),
+                player.getGamesWon(), player.getTotalGames(), player.getSuccessRate(),
+                player.getGames().stream().map(this::convertGameToGameDTO).toList());
         return playerDTO;
     }
 
     private PlayerRateDTO convertPlayerToPlayerRateDTO(Player player) {
-        PlayerRateDTO playerRateDTO = new PlayerRateDTO();
-        playerRateDTO.setId(player.getId());
-        playerRateDTO.setName(player.getName());
-        playerRateDTO.setGamesWon(player.getGamesWon());
-        playerRateDTO.setTotalGames(player.getTotalGames());
-        playerRateDTO.setSuccessRate(player.getSuccessRate());
+        PlayerRateDTO playerRateDTO = new PlayerRateDTO(
+            player.getId(),
+            player.getName(),
+            player.getGamesWon(),
+            player.getTotalGames(),
+            player.getSuccessRate());
         return playerRateDTO;
     }
 
     private PlayerNameDTO convertPlayerToPlayerNameDTO(Player player) {
-        PlayerNameDTO playerNameDTO = new PlayerNameDTO();
-        playerNameDTO.setName(player.getName());
+        PlayerNameDTO playerNameDTO = new PlayerNameDTO(player.getName());
         return playerNameDTO;
     }
 
-    private Player convertPlayerDtoToPlayer(PlayerDTO playerDTO) {
-        Player player = new Player();
-        player.setName(playerDTO.getName());
-        player.setId(playerDTO.getId());
-        return player;
-    }
-
     private GameDTO convertGameToGameDTO(Game game) {
-        GameDTO gameDTO = new GameDTO();
-        gameDTO.setId(game.getId());
-        gameDTO.setDice1(game.getDice1());
-        gameDTO.setDice2(game.getDice2());
-        gameDTO.setScore(game.getScore());
-        gameDTO.setWinner(game.isWinner());
-        gameDTO.setPlayDate(game.getPlayDate());
+        GameDTO gameDTO = new GameDTO(
+            game.getId(),
+            game.getDice1(),
+            game.getDice2(),
+            game.getScore(),
+            game.isWinner(),
+            game.getPlayDate());
         return gameDTO;
     }
 
     private RankingDTO convertDoubleToRankingDTO(double meanRate) {
-        return RankingDTO.getInstance(meanRate);
+        return new RankingDTO(meanRate);
     }
 
 }

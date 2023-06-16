@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class PlayerController {
                     content = @Content)
     })
     @PostMapping("/players")
-    public ResponseEntity<PlayerDTO> savePlayer(@RequestBody RegisterPlayerDTO registerPlayerDTO) {
+    public ResponseEntity<PlayerDTO> savePlayer(@RequestBody @Valid RegisterPlayerDTO registerPlayerDTO) {
         // Get userId
         Long userId = 1L;
 
@@ -52,7 +53,7 @@ public class PlayerController {
                     content = @Content)
     })
     @PutMapping("/players")
-    public ResponseEntity<PlayerNameDTO> updatePlayer(@RequestBody PlayerNameDTO playerNameDTO) {
+    public ResponseEntity<PlayerNameDTO> updatePlayer(@RequestBody @Valid PlayerNameDTO playerNameDTO) {
         // Get userId
         Long userId = 1L;
         PlayerNameDTO updatedPlayer = playerService.update(playerNameDTO, userId);
