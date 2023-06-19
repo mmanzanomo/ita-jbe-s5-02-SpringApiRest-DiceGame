@@ -14,17 +14,4 @@ public class S05T02DiceGameApplication {
 		SpringApplication.run(S05T02DiceGameApplication.class, args);
 	}
 
-	@Bean
-	public OpenAPI customOpenAPI() {
-		return new OpenAPI()
-				.info(new Info()
-						.title("Dice Game API")
-						.version("0.1")
-						.description("API with Spring Boot to manage a Dice Game")
-						.termsOfService("http://swagger.io/terms")
-						.license(new License().name("Apache 2.0")
-								.url("http://springdoc.org")
-						));
-	}
-
 }

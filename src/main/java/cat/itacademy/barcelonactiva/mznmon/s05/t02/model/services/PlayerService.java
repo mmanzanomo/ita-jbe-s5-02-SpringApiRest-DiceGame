@@ -50,6 +50,7 @@ public class PlayerService implements IPlayerService {
             }
 
             playerMongoDbRepository.save(player);
+            player.setUserId(id);
             return convertPlayerToPlayerDTO(player);
         } catch (EmailIsAlreadyExistsException | NameIsAlreadyExistsException e) {
             logger.error(e.getMessage());
@@ -168,7 +169,7 @@ public class PlayerService implements IPlayerService {
         UTILS TO COMVERT TO DTO
      */
     private PlayerDTO convertPlayerToPlayerDTO(Player player) {
-        PlayerDTO playerDTO = new PlayerDTO(player.getId(), null, player.getName(),
+        PlayerDTO playerDTO = new PlayerDTO(player.getId(), player.getUserId(), player.getName(),
                 player.getGamesWon(), player.getTotalGames(), player.getSuccessRate(),
                 player.getGames().stream().map(this::convertGameToGameDTO).toList());
         return playerDTO;

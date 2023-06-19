@@ -1,5 +1,6 @@
 package cat.itacademy.barcelonactiva.mznmon.s05.t02.controller;
 
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.auth.JwtService;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.dtos.*;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.services.IPlayerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,14 +18,11 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1")
 public class PlayerController {
-    private IPlayerService playerService;
-
-
-    public PlayerController(IPlayerService playerService) {
-        this.playerService = playerService;
-    }
+    private final IPlayerService playerService;
+    private final JwtService jwtService;
 
 
     @Operation(summary = "Add a new player")
@@ -34,13 +34,15 @@ public class PlayerController {
                     content = @Content)
     })
     @PostMapping("/players")
-    public ResponseEntity<PlayerDTO> savePlayer(@RequestBody @Valid RegisterPlayerDTO registerPlayerDTO) {
+    public ResponseEntity<PlayerDTO> savePlayer(@RequestBody RegisterPlayerDTO registerPlayerDTO,
+                                                @RequestHeader("Authorization") String tokenHeader) {
         // Get userId
-        Long userId = 1L;
+        String token = tokenHeader.substring(7);
+        Long userId = jwtService.extractUserId(token);
 
         PlayerDTO savedPlayer = playerService.save(registerPlayerDTO, userId);
         return (savedPlayer != null)
-                ? ResponseEntity.status(201).body(savedPlayer)
+                ? ResponseEntity.status(HttpStatus.CREATED).body(savedPlayer)
                 : ResponseEntity.status(500).body(null);
     }
 
@@ -58,7 +60,7 @@ public class PlayerController {
         Long userId = 1L;
         PlayerNameDTO updatedPlayer = playerService.update(playerNameDTO, userId);
         return (updatedPlayer != null)
-                ? ResponseEntity.status(201).body(updatedPlayer)
+                ? ResponseEntity.status(HttpStatus.CREATED).body(updatedPlayer)
                 : ResponseEntity.status(500).body(null);
     }
 
@@ -71,15 +73,16 @@ public class PlayerController {
                     content = @Content)
     })
     @PostMapping("/players/games/roll")
-    public ResponseEntity<GameDTO> rollDice() {
+    public ResponseEntity<GameDTO> rollDice(@RequestHeader("Authorization") String tokenHeader) {
         // Get userId
-        Long userId = 1L;
+        String token = tokenHeader.substring(7);
+        Long userId = jwtService.extractUserId(token);
         // TODO: if player not exists, throw an NoValidPlayerException()
         Optional<PlayerDTO> playerDTO = playerService.findPlayerById(userId);
         // TODO: if player exists, player roll a dice and save the game.
         if (playerDTO.isPresent()) {
             GameDTO gameDTO = playerService.saveGame(playerDTO.get());
-            return ResponseEntity.status(201).body(gameDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(gameDTO);
         }
         return ResponseEntity.status(500).body(null);
     }
@@ -97,8 +100,8 @@ public class PlayerController {
         Long userId = 1L;
         PlayerDTO playerDTO = playerService.deletePlayerGames(userId);
         return (playerDTO != null)
-                ? ResponseEntity.status(200).body(playerDTO)
-                : ResponseEntity.status(404).body(null);
+                ? ResponseEntity.status(HttpStatus.CREATED).body(playerDTO)
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     @Operation(summary = "Get the list of players")
@@ -128,7 +131,7 @@ public class PlayerController {
         Optional<PlayerDTO> player = playerService.findPlayerById(userId);
 
         return player.map(playerDTO -> ResponseEntity.ok().body(playerDTO))
-                .orElseGet(() -> ResponseEntity.status(404).body(null));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
     @Operation(summary = "Get the rate of all players")
