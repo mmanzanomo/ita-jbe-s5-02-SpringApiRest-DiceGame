@@ -51,17 +51,20 @@ public class PlayerController {
             @ApiResponse(responseCode = "200", description = "Updated player",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PlayerNameDTO.class)) }),
-            @ApiResponse(responseCode = "500", description = "Server internal error",
+            @ApiResponse(responseCode = "400", description = "Bad request",
                     content = @Content)
     })
     @PutMapping("/players")
-    public ResponseEntity<PlayerNameDTO> updatePlayer(@RequestBody @Valid PlayerNameDTO playerNameDTO) {
+    public ResponseEntity<PlayerNameDTO> updatePlayer(@RequestBody @Valid PlayerNameDTO playerNameDTO,
+                                                      @RequestHeader("Authorization") String tokenHeader) {
         // Get userId
-        Long userId = 1L;
+        String token = tokenHeader.substring(7);
+        Long userId = jwtService.extractUserId(token);
+
         PlayerNameDTO updatedPlayer = playerService.update(playerNameDTO, userId);
         return (updatedPlayer != null)
                 ? ResponseEntity.status(HttpStatus.CREATED).body(updatedPlayer)
-                : ResponseEntity.status(500).body(null);
+                : ResponseEntity.status(400).body(null);
     }
 
     @Operation(summary = "The player plays a new game and rolls the dice.")
@@ -77,8 +80,10 @@ public class PlayerController {
         // Get userId
         String token = tokenHeader.substring(7);
         Long userId = jwtService.extractUserId(token);
+
         // TODO: if player not exists, throw an NoValidPlayerException()
         Optional<PlayerDTO> playerDTO = playerService.findPlayerById(userId);
+
         // TODO: if player exists, player roll a dice and save the game.
         if (playerDTO.isPresent()) {
             GameDTO gameDTO = playerService.saveGame(playerDTO.get());
@@ -125,9 +130,11 @@ public class PlayerController {
             @ApiResponse(responseCode = "404", description = "player not found")
     })
     @GetMapping("/players/games")
-    public ResponseEntity<PlayerDTO> getPlayer() {
+    public ResponseEntity<PlayerDTO> getPlayer(@RequestHeader("Authorization") String tokenHeader) {
         // Get userId
-        Long userId = 1L;
+        String token = tokenHeader.substring(7);
+        Long userId = jwtService.extractUserId(token);
+
         Optional<PlayerDTO> player = playerService.findPlayerById(userId);
 
         return player.map(playerDTO -> ResponseEntity.ok().body(playerDTO))

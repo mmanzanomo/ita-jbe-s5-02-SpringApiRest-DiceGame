@@ -49,9 +49,9 @@ public class PlayerService implements IPlayerService {
                 if (nameExists) throw new NameIsAlreadyExistsException("The username is already exists.");
             }
 
-            playerMongoDbRepository.save(player);
             player.setUserId(id);
-            return convertPlayerToPlayerDTO(player);
+            Player savedPlayer = playerMongoDbRepository.save(player);
+            return convertPlayerToPlayerDTO(savedPlayer);
         } catch (EmailIsAlreadyExistsException | NameIsAlreadyExistsException e) {
             logger.error(e.getMessage());
             return null;
@@ -75,7 +75,8 @@ public class PlayerService implements IPlayerService {
     public Optional<PlayerDTO> findPlayerById(Long id) {
         Optional<Player> playerByUserId = playerMongoDbRepository.findByUserId(id);
         Optional<Player> player = playerMongoDbRepository.findById(playerByUserId.get().getId());
-        return player.map(this::convertPlayerToPlayerDTO);
+
+        return playerByUserId.map(this::convertPlayerToPlayerDTO);
     }
 
     @Override

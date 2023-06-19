@@ -9,8 +9,8 @@ public record PlayerDTO(
     String id,
     Long userId,
     String name,
-    @NotNull int gamesWon,
-    @NotNull int totalGames,
-    @NotNull double successRate,
+    int gamesWon,
+    int totalGames,
+    double successRate,
     List<GameDTO> games
 ) {}
