@@ -30,7 +30,7 @@ public class PlayerController {
             @ApiResponse(responseCode = "201", description = "Added player",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = RegisterPlayerDTO.class)) }),
-            @ApiResponse(responseCode = "500", description = "Server internal error",
+            @ApiResponse(responseCode = "400", description = "Bad request",
                     content = @Content)
     })
     @PostMapping("/players")
@@ -71,9 +71,7 @@ public class PlayerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Saved Game",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = GameDTO.class)) }),
-            @ApiResponse(responseCode = "500", description = "Server internal error",
-                    content = @Content)
+                            schema = @Schema(implementation = GameDTO.class)) })
     })
     @PostMapping("/players/games/roll")
     public ResponseEntity<GameDTO> rollDice(@RequestHeader("Authorization") String tokenHeader) {
@@ -113,8 +111,7 @@ public class PlayerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get the players list",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = PlayerRateDTO.class)) }),
-            @ApiResponse(responseCode = "500", description = "Server internal error")
+                            schema = @Schema(implementation = PlayerRateDTO.class)) })
     })
     @GetMapping("/players/")
     public ResponseEntity<List<PlayerRateDTO>> getPlayers() {

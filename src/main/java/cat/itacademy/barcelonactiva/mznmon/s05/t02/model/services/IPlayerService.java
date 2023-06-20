@@ -8,7 +8,6 @@ import java.util.Optional;
 public interface IPlayerService {
     PlayerDTO save(RegisterPlayerDTO registerPlayerDTO, Long id);
     PlayerNameDTO update(PlayerNameDTO PlayerNameDTO, Long id);
-    void delete(String id);
     List<PlayerRateDTO> findAll();
     GameDTO saveGame(PlayerDTO playerDTO);
     Optional<PlayerDTO> findPlayerById(Long id);

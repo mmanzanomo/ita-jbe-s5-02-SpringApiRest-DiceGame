@@ -26,7 +26,7 @@ public class SecurityConfig {
             .authorizeHttpRequests((authorizeHttpRequests) ->
                     authorizeHttpRequests
                             .requestMatchers("api/v1/doc/**", "api/v1/auth/**").permitAll()
-                            .anyRequest().authenticated()
+                            .anyRequest().permitAll() // .authenticated()
             )
             .sessionManagement(session ->
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -36,14 +36,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-    /*
-    @Bean
-    UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(User.withUsername("testadmin").password("test1234").roles().build());
-        return manager;
-    }
-    */
 
 }

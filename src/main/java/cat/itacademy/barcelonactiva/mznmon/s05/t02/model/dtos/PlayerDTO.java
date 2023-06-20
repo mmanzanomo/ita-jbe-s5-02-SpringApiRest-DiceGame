@@ -6,11 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record PlayerDTO(
-    String id,
-    Long userId,
-    String name,
-    int gamesWon,
-    int totalGames,
-    double successRate,
+    @NotNull String id,
+    @NotNull Long userId,
+    @NotNull String name,
+    @NotNull int gamesWon,
+    @NotNull int totalGames,
+    @NotNull double successRate,
     List<GameDTO> games
 ) {}

@@ -29,6 +29,13 @@ public class PlayerService implements IPlayerService {
     private IGameMongoDbRepository gameMongoDbRepository;
 
 
+    /**
+     * This method checks if the player name does not exist and saves it.
+     * @param registerPlayerDTO that contains the player's name.
+     * @param id related to the registered user.
+     * @return PlayerDTO - the player that was created or null if an exception NameIsAlreadyExistsException
+     * or NameIsAlreadyExistsException was raised.
+     */
     @Override
     @Transactional
     public PlayerDTO save(RegisterPlayerDTO registerPlayerDTO, Long id) {
@@ -58,6 +65,12 @@ public class PlayerService implements IPlayerService {
         }
     }
 
+    /**
+     * This method update the player's name.
+     * @param playerNameDTO new name.
+     * @param userId related to the registered user.
+     * @return the updated name.
+     */
     @Override
     @Transactional
     public PlayerNameDTO update(PlayerNameDTO playerNameDTO, Long userId) {
@@ -70,6 +83,11 @@ public class PlayerService implements IPlayerService {
         return convertPlayerToPlayerNameDTO(playerMongo.get());
     }
 
+    /**
+     * This method get the player with specified user id.
+     * @param id the user
+     * @return the player if it has been found.
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<PlayerDTO> findPlayerById(Long id) {
@@ -79,6 +97,11 @@ public class PlayerService implements IPlayerService {
         return playerByUserId.map(this::convertPlayerToPlayerDTO);
     }
 
+    /**
+     * This method generated a new roll and save the game.
+     * @param playerDTO the player who rolls the dice.
+     * @return The saved game.
+     */
     @Override
     @Transactional
     public GameDTO saveGame(PlayerDTO playerDTO) {
@@ -98,11 +121,10 @@ public class PlayerService implements IPlayerService {
         return null;
     }
 
-    @Override
-    public void delete(String id) {
-        // TODO: delete player
-    }
-
+    /**
+     * This method returns the statistics of all players
+     * @return a list of players with their statistics.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<PlayerRateDTO> findAll() {
@@ -110,6 +132,11 @@ public class PlayerService implements IPlayerService {
         return players.stream().map(this::convertPlayerToPlayerRateDTO).toList();
     }
 
+    /**
+     * This method clear the game list of a player.
+     * @param id the user id.
+     * @return the same player with updated info.
+     */
     @Override
     @Transactional
     public PlayerDTO deletePlayerGames(Long id) {
@@ -128,6 +155,10 @@ public class PlayerService implements IPlayerService {
         return convertPlayerToPlayerDTO(playerMongo.get());
     }
 
+    /**
+     * This method returns the average of all wins made by players.
+     * @return the total average of wins.
+     */
     @Override
     @Transactional(readOnly = true)
     public RankingDTO getRanking() {
@@ -143,6 +174,10 @@ public class PlayerService implements IPlayerService {
         return convertDoubleToRankingDTO(totalMeanRate);
     }
 
+    /**
+     * This method obtains the player with the worst statistics.
+     * @return the player with the worst statistics.
+     */
     @Override
     @Transactional(readOnly = true)
     public PlayerRateDTO getRankingLoserPlayer() {
@@ -154,6 +189,10 @@ public class PlayerService implements IPlayerService {
         return convertPlayerToPlayerRateDTO(worstPlayer);
     }
 
+    /**
+     * This method obtains the player with the best statistics.
+     * @return the player with the best statistics.
+     */
     @Override
     @Transactional(readOnly = true)
     public PlayerRateDTO getRankingWinnerPlayer() {

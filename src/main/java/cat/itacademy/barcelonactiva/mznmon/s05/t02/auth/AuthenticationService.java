@@ -1,5 +1,8 @@
 package cat.itacademy.barcelonactiva.mznmon.s05.t02.auth;
 
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.auth.dtos.AuthenticationRequest;
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.auth.dtos.AuthenticationResponse;
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.auth.dtos.RegisterRequest;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.exceptions.EmailIsAlreadyExistsException;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.users.Role;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.users.User;
