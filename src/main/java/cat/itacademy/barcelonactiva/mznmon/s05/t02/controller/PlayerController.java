@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@SecurityRequirement(name = "Bearer Authentication")
 @RequestMapping("api/v1")
 public class PlayerController {
     private final IPlayerService playerService;
@@ -98,12 +100,14 @@ public class PlayerController {
             @ApiResponse(responseCode = "404", description = "Player not found")
     })
     @DeleteMapping("/players/games/delete")
-    public ResponseEntity<PlayerDTO> deletePlayerGames() {
+    public ResponseEntity<PlayerDTO> deletePlayerGames(@RequestHeader("Authorization") String tokenHeader) {
         // Get userId
-        Long userId = 1L;
+        String token = tokenHeader.substring(7);
+        Long userId = jwtService.extractUserId(token);
+
         PlayerDTO playerDTO = playerService.deletePlayerGames(userId);
         return (playerDTO != null)
-                ? ResponseEntity.status(HttpStatus.CREATED).body(playerDTO)
+                ? ResponseEntity.status(HttpStatus.OK).body(playerDTO)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 

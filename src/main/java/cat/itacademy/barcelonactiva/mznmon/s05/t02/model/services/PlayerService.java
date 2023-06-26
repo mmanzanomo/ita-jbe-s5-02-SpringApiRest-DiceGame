@@ -5,7 +5,6 @@ import cat.itacademy.barcelonactiva.mznmon.s05.t02.exceptions.NameIsAlreadyExist
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.game.Game;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.game.Player;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.dtos.*;
-import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.repositories.mongo.IGameMongoDbRepository;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.repositories.mongo.IPlayerMongoDbRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,6 @@ public class PlayerService implements IPlayerService {
 
     @Autowired
     private IPlayerMongoDbRepository playerMongoDbRepository;
-    @Autowired
-    private IGameMongoDbRepository gameMongoDbRepository;
 
 
     /**
@@ -107,6 +104,7 @@ public class PlayerService implements IPlayerService {
     public GameDTO saveGame(PlayerDTO playerDTO) {
         Optional<Player> playerMongo = playerMongoDbRepository.findById(playerDTO.id());
 
+        // If player exists roll the dice
         if (playerMongo.isPresent()) {
             Game game = new Game();
             playerMongo.get().getGames().add(game);
@@ -141,18 +139,19 @@ public class PlayerService implements IPlayerService {
     @Transactional
     public PlayerDTO deletePlayerGames(Long id) {
         Optional<Player> playerByUserId = playerMongoDbRepository.findByUserId(id);
-        // Find player id
-        Optional<Player> playerMongo = playerMongoDbRepository.findById(playerByUserId.get().getId());
 
-        if (playerMongo.isPresent()) {
-            gameMongoDbRepository.deleteAll(playerMongo.get().getGames());
-            playerMongo.get().getGames().clear();
-            playerMongo.get().setTotalGames(0);
-            playerMongo.get().setGamesWon(0);
-            playerMongo.get().setSuccessRate();
+        if (playerByUserId.isPresent()) {
+            playerByUserId.get().getGames().clear();
+            playerByUserId.get().setTotalGames(0);
+            playerByUserId.get().setGamesWon(0);
+            playerByUserId.get().setSuccessRate();
+
+            playerMongoDbRepository.save(playerByUserId.get());
+
+            return convertPlayerToPlayerDTO(playerByUserId.get());
         }
 
-        return convertPlayerToPlayerDTO(playerMongo.get());
+        return null;
     }
 
     /**
@@ -232,7 +231,6 @@ public class PlayerService implements IPlayerService {
 
     private GameDTO convertGameToGameDTO(Game game) {
         GameDTO gameDTO = new GameDTO(
-            game.getId(),
             game.getDice1(),
             game.getDice2(),
             game.getScore(),
