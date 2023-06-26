@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Tag(name = "Users", description = "User registration and authentication operations.")
 public class AuthenticationController {
     private final AuthenticationService service;
 
     @Operation(summary = "Register new player")
-    @ApiResponse(responseCode = "201", description = "Added player",
-            content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = AuthenticationResponse.class))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Added player",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AuthenticationResponse.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -33,12 +38,15 @@ public class AuthenticationController {
     }
 
     @Operation(summary = "Register new player")
-    @ApiResponse(responseCode = "200", description = "Authenticated user",
-            content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = AuthenticationResponse.class))
-            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Authenticated user",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AuthenticationResponse.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.")
+    })
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> authentication(@Valid @RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authentication(request));
     }
 
