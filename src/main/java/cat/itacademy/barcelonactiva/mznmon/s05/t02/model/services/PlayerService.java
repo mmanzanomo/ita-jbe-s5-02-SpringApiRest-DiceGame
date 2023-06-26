@@ -89,7 +89,6 @@ public class PlayerService implements IPlayerService {
     @Transactional(readOnly = true)
     public Optional<PlayerDTO> findPlayerById(Long id) {
         Optional<Player> playerByUserId = playerMongoDbRepository.findByUserId(id);
-        Optional<Player> player = playerMongoDbRepository.findById(playerByUserId.get().getId());
 
         return playerByUserId.map(this::convertPlayerToPlayerDTO);
     }
