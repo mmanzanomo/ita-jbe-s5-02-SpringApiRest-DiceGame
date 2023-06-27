@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 
@@ -88,8 +89,8 @@ class AuthenticationServiceTest {
 
         // Assert
         verify(userRepository).existsByEmail(request.email());
-        verifyNoInteractions(roleRepository, passwordEncoder, userRepository, jwtService);
-        assertEquals(null, response);
+        verifyNoInteractions(roleRepository, passwordEncoder, jwtService);
+        assertNull(response);
     }
 
     @Test
