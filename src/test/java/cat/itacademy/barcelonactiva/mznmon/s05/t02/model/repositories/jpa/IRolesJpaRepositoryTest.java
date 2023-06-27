@@ -20,6 +20,13 @@ class IRolesJpaRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        // Add roles
+        Role userRole = new Role();
+        userRole.setName("ADMIN");
+        rolesRepository.save(userRole);
+        Role adminRole = new Role();
+        adminRole.setName("USER");
+        rolesRepository.save(adminRole);
     }
 
     @AfterEach
