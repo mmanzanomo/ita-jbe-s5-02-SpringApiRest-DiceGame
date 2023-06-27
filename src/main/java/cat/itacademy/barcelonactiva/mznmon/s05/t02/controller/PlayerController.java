@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Game", description = "Game logic management.")
 @RequestMapping("api/v1")
@@ -33,7 +35,7 @@ public class PlayerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Added player",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = RegisterPlayerDTO.class)) }),
+                            schema = @Schema(implementation = PlayerDTO.class)) }),
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "401", description = "Invalid credentials.")
     })
