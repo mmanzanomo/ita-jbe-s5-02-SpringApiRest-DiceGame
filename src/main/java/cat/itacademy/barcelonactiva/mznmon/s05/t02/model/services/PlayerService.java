@@ -149,7 +149,6 @@ public class PlayerService implements IPlayerService {
 
             return convertPlayerToPlayerDTO(playerByUserId.get());
         }
-
         return null;
     }
 
