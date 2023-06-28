@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 
 public record GameDTO(
-    @NotNull Long id,
     @NotNull byte dice1,
     @NotNull byte dice2,
     @NotNull byte score,
