@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    depends_on:
+      - mysql
+      - mongodb
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/testdb
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/testdb?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=testdb
+      - SPRING_DATASOURCE_PASSWORD=testdb_123456
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=testdb_root
+      - MYSQL_DATABASE=testdb
+      - MYSQL_USER=testdb
+      - MYSQL_PASSWORD=testdb_123456
+    ports:
+      - 3306:3306
+  mongodb:
+    image: mongo:4.4
+    ports:
+      - 27017:27017
