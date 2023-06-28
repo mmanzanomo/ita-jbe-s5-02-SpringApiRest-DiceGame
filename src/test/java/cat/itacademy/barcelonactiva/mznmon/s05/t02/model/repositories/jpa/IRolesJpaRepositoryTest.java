@@ -37,10 +37,7 @@ class IRolesJpaRepositoryTest {
     @Test
     void findByName() {
         // Given
-        String roleName = "ROLE_ADMIN";
-        Role role = new Role();
-        role.setName(roleName);
-        rolesRepository.save(role);
+        String roleName = "ADMIN";
 
         // When
         Optional<Role> foundRole = rolesRepository.findByName(roleName);

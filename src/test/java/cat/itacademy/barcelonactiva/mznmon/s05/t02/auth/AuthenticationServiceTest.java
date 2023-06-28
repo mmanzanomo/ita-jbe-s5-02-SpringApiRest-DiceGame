@@ -3,8 +3,10 @@ package cat.itacademy.barcelonactiva.mznmon.s05.t02.auth;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.auth.dtos.AuthenticationRequest;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.auth.dtos.AuthenticationResponse;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.auth.dtos.RegisterRequest;
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.exceptions.EmailIsAlreadyExistsException;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.users.Role;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.users.User;
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.dtos.MessageResponseDTO;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.repositories.jpa.IRolesJpaRepository;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.repositories.jpa.IUserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,14 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 
@@ -78,19 +80,18 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void register_WithExistingEmail_ShouldThrowException() {
+    void register_WithExistingEmail_ShouldThrowException() throws EmailIsAlreadyExistsException {
         // Arrange
         RegisterRequest request = new RegisterRequest("test@example.com", "password");
 
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
-        // Act
-        AuthenticationResponse response = authenticationService.register(request);
+        // Act and Assert
+        assertThrows(EmailIsAlreadyExistsException.class, () -> authenticationService.register(request));
 
-        // Assert
+        // verify
         verify(userRepository).existsByEmail(request.email());
         verifyNoInteractions(roleRepository, passwordEncoder, jwtService);
-        assertNull(response);
     }
 
     @Test
