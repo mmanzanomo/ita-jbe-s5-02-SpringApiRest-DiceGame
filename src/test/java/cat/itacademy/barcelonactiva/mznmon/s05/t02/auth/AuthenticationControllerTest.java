@@ -42,7 +42,7 @@ class AuthenticationControllerTest {
         when(authenticationService.register(request)).thenReturn(expectedResponse);
 
         // Call method to register a new user
-        ResponseEntity<AuthenticationResponse> response = authenticationController.register(request);
+        ResponseEntity<?> response = authenticationController.register(request);
         // Verify the response
         verify(authenticationService).register(request);
 
@@ -61,7 +61,7 @@ class AuthenticationControllerTest {
         when(authenticationService.authentication(request)).thenReturn(expectedResponse);
 
         // Call controller method
-        ResponseEntity<AuthenticationResponse> response = authenticationController.authentication(request);
+        ResponseEntity<?> response = authenticationController.authentication(request);
 
         verify(authenticationService).authentication(request);
 
