@@ -1,5 +1,7 @@
 package cat.itacademy.barcelonactiva.mznmon.s05.t02.config;
 
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.domain.users.Role;
+import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.repositories.jpa.IRolesJpaRepository;
 import cat.itacademy.barcelonactiva.mznmon.s05.t02.model.repositories.jpa.IUserJpaRepository;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -8,6 +10,8 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +22,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 
 @Configuration
@@ -31,7 +37,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 )
 
 public class ApplicationConfig {
+    @Autowired
     private final IUserJpaRepository repository;
+    @Autowired
+    private IRolesJpaRepository rolesJpaRepository;
+
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -69,6 +79,23 @@ public class ApplicationConfig {
                         .license(new License().name("Apache 2.0")
                                 .url("http://springdoc.org")
                         ));
+    }
+
+    @Bean
+    public CommandLineRunner initRoles() {
+        return args -> {
+            createRoleIfNotExists("ADMIN");
+            createRoleIfNotExists("USER");
+        };
+    }
+
+    private void createRoleIfNotExists(String name) {
+        Optional<Role> optionalRole = rolesJpaRepository.findByName(name);
+        if (optionalRole.isEmpty()) {
+            Role role = new Role();
+            role.setName(name);
+            rolesJpaRepository.save(role);
+        }
     }
 
 }
