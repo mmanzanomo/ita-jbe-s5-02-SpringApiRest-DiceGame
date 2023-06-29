@@ -14,7 +14,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.Optional;
 @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Game", description = "Game logic management.")
+@Validated
 @RequestMapping("api/v1")
 public class PlayerController {
     private final IPlayerService playerService;
@@ -36,11 +40,15 @@ public class PlayerController {
             @ApiResponse(responseCode = "201", description = "Added player",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PlayerDTO.class)) }),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials.")
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) }),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) })
     })
     @PostMapping("/players")
-    public ResponseEntity<PlayerDTO> savePlayer(@RequestBody RegisterPlayerDTO registerPlayerDTO,
+    public ResponseEntity<?> savePlayer(@RequestBody RegisterPlayerDTO registerPlayerDTO,
                                                 @RequestHeader("Authorization") String tokenHeader) {
         // Get userId
         String token = tokenHeader.substring(7);
@@ -50,9 +58,11 @@ public class PlayerController {
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(savedPlayer);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
         }
     }
 
@@ -61,11 +71,15 @@ public class PlayerController {
             @ApiResponse(responseCode = "200", description = "Updated player",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PlayerNameDTO.class)) }),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials.")
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) }),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) })
     })
     @PutMapping("/players")
-    public ResponseEntity<PlayerNameDTO> updatePlayer(@RequestBody @Valid PlayerNameDTO playerNameDTO,
+    public ResponseEntity<?> updatePlayer(@RequestBody @Valid PlayerNameDTO playerNameDTO,
                                                       @RequestHeader("Authorization") String tokenHeader) {
         // Get userId
         String token = tokenHeader.substring(7);
@@ -75,9 +89,11 @@ public class PlayerController {
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(updatedPlayer);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
         }
     }
 
@@ -86,11 +102,15 @@ public class PlayerController {
             @ApiResponse(responseCode = "201", description = "Saved Game",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = GameDTO.class)) }),
-            @ApiResponse(responseCode = "400", description = "Bad request."),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials.")
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) }),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) })
     })
     @PostMapping("/players/games/roll")
-    public ResponseEntity<GameDTO> rollDice(@RequestHeader("Authorization") String tokenHeader) {
+    public ResponseEntity<?> rollDice(@RequestHeader("Authorization") String tokenHeader) {
         // Get userId
         String token = tokenHeader.substring(7);
         Long userId = jwtService.extractUserId(token);
@@ -103,10 +123,13 @@ public class PlayerController {
                 GameDTO gameDTO = playerService.saveGame(playerDTO.get());
                 return ResponseEntity.status(HttpStatus.CREATED).body(gameDTO);
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new MessageResponseDTO(HttpStatus.UNAUTHORIZED.value(), "Permission to roll the dice denied."));
+
             }
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
         }
     }
 
@@ -115,12 +138,18 @@ public class PlayerController {
             @ApiResponse(responseCode = "200", description = "game list deleted",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PlayerDTO.class)) }),
-            @ApiResponse(responseCode = "400", description = "Bad request."),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials."),
-            @ApiResponse(responseCode = "404", description = "Player not found")
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) }),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) }),
+            @ApiResponse(responseCode = "404", description = "Player not found",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) })
     })
     @DeleteMapping("/players/games/delete")
-    public ResponseEntity<PlayerDTO> deletePlayerGames(@RequestHeader("Authorization") String tokenHeader) {
+    public ResponseEntity<?> deletePlayerGames(@RequestHeader("Authorization") String tokenHeader) {
         // Get userId
         String token = tokenHeader.substring(7);
         Long userId = jwtService.extractUserId(token);
@@ -129,11 +158,14 @@ public class PlayerController {
             PlayerDTO playerDTO = playerService.deletePlayerGames(userId);
             return (playerDTO != null)
                     ? ResponseEntity.status(HttpStatus.OK).body(playerDTO)
-                    : ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                    : ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageResponseDTO(HttpStatus.NOT_FOUND.value(), "Player not found"));
         }catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
         }
     }
 
@@ -142,7 +174,9 @@ public class PlayerController {
             @ApiResponse(responseCode = "200", description = "Get the players list",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PlayerRateDTO.class)) }),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials.")
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) })
     })
     @GetMapping("/players/")
     public ResponseEntity<List<PlayerRateDTO>> getPlayers() {
@@ -155,11 +189,15 @@ public class PlayerController {
             @ApiResponse(responseCode = "200", description = "The list of games has been obtained",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PlayerDTO.class)) }),
-            @ApiResponse(responseCode = "400", description = "Bad request."),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials.")
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) }),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) })
     })
     @GetMapping("/players/games")
-    public ResponseEntity<PlayerDTO> getPlayer(@RequestHeader("Authorization") String tokenHeader) {
+    public ResponseEntity<?> getPlayer(@RequestHeader("Authorization") String tokenHeader) {
         // Get userId
         String token = tokenHeader.substring(7);
         Long userId = jwtService.extractUserId(token);
@@ -167,7 +205,7 @@ public class PlayerController {
         Optional<PlayerDTO> player = playerService.findPlayerById(userId);
 
         return player.map(playerDTO -> ResponseEntity.ok().body(playerDTO))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @Operation(summary = "Get the rate of all players")
@@ -175,7 +213,9 @@ public class PlayerController {
             @ApiResponse(responseCode = "200", description = "The average hit percentage of all players has been obtained",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = RankingDTO.class)) }),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials.")
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) })
     })
     @GetMapping("/players/ranking")
     public ResponseEntity<RankingDTO> getRanking() {
@@ -187,7 +227,9 @@ public class PlayerController {
             @ApiResponse(responseCode = "200", description = "The average hit percentage of worst player has been obtained",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PlayerRateDTO.class)) }),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials.")
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) })
     })
     @GetMapping("/players/ranking/loser")
     public ResponseEntity<PlayerRateDTO> getRankingWorstPlayer() {
@@ -199,11 +241,29 @@ public class PlayerController {
             @ApiResponse(responseCode = "200", description = "The average hit percentage of best player has been obtained",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PlayerRateDTO.class)) }),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials.")
+            @ApiResponse(responseCode = "401", description = "Invalid credentials.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)) })
     })
     @GetMapping("/players/ranking/winner")
     public ResponseEntity<PlayerRateDTO> getRankingBestPlayer() {
         return ResponseEntity.ok().body(playerService.getRankingWinnerPlayer());
+    }
+
+
+    // Handle MethodArgumentNotValidException exception
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    private ResponseEntity<?> handleValidationException(MethodArgumentNotValidException e) {
+        // Build the custom MessageResponseDTO
+        MessageResponseDTO responseDTO = new MessageResponseDTO(HttpStatus.BAD_REQUEST.value(), "Bad Request. The request data is not as expected.");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<MessageResponseDTO> handleAccessDeniedException(AccessDeniedException ex) {
+        MessageResponseDTO responseDTO = new MessageResponseDTO(0, "Access Denied.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDTO);
     }
 
 }

@@ -48,7 +48,7 @@ class PlayerControllerTest {
         PlayerDTO savedPlayerDTO = new PlayerDTO("uuid344", userId, "playername", 0, 0, 0.0, null);;
         when(playerService.save(registerPlayerDTO, userId)).thenReturn(savedPlayerDTO);
 
-        ResponseEntity<PlayerDTO> response = playerController.savePlayer(registerPlayerDTO, "Bearer " + token);
+        ResponseEntity<?> response = playerController.savePlayer(registerPlayerDTO, "Bearer " + token);
 
         // Verify that the mock methods were called
         verify(jwtService).extractUserId(token);
@@ -72,7 +72,7 @@ class PlayerControllerTest {
         when(playerService.update(playerNameDTO, userId)).thenReturn(updatedPlayerDTO);
 
         // Call controller
-        ResponseEntity<PlayerNameDTO> response = playerController.updatePlayer(playerNameDTO, "Bearer " + token);
+        ResponseEntity<?> response = playerController.updatePlayer(playerNameDTO, "Bearer " + token);
 
         // Verify that the mock methods were called
         verify(jwtService).extractUserId(token);
@@ -101,7 +101,7 @@ class PlayerControllerTest {
         when(playerService.saveGame(playerDTO)).thenReturn(gameDTO);
 
         // Call the rollDice method to verify
-        ResponseEntity<GameDTO> response = playerController.rollDice("Bearer " + token);
+        ResponseEntity<?> response = playerController.rollDice("Bearer " + token);
 
         // Verify
         verify(jwtService).extractUserId(token);
@@ -125,7 +125,7 @@ class PlayerControllerTest {
         when(playerService.deletePlayerGames(userId)).thenReturn(playerDTO);
 
         // Call controller
-        ResponseEntity<PlayerDTO> response = playerController.deletePlayerGames("Bearer " + token);
+        ResponseEntity<?> response = playerController.deletePlayerGames("Bearer " + token);
 
         // Verify
         verify(jwtService).extractUserId(token);
@@ -167,7 +167,7 @@ class PlayerControllerTest {
         when(playerService.findPlayerById(userId)).thenReturn(Optional.of(playerDTO));
 
         // Call controller
-        ResponseEntity<PlayerDTO> response = playerController.getPlayer("Bearer token");
+        ResponseEntity<?> response = playerController.getPlayer("Bearer token");
 
         // Verify
         verify(playerService).findPlayerById(userId);
